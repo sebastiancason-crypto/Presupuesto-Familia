@@ -3,35 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#C2185B">
+<meta name="theme-color" content="#0F1117">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cash Flow">
-<title>Mi Cash Flow</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💖%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-title" content="Cason-Ronco">
+<title>Familia Cason-Ronco</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏠%3C/text%3E%3C/svg%3E">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
-  --primary: #C2185B;
-  --primary-dark: #880E4F;
-  --primary-light: #FCE4EC;
-  --accent: #E91E63;
-  --bg: #FAFAFA;
-  --bg-card: #FFFFFF;
-  --text: #1A1A1A;
-  --text-soft: #6B6B6B;
-  --text-light: #A0A0A0;
-  --border: #E8E8E8;
-  --border-soft: #F0F0F0;
-  --green: #2E7D32;
-  --green-bg: #E8F5E9;
-  --red: #C62828;
-  --red-bg: #FFEBEE;
-  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-lg: 0 4px 16px rgba(0,0,0,.08);
+  /* Paleta dark mode índigo + violeta */
+  --primary: #818CF8;          /* indigo-400 */
+  --primary-dark: #6366F1;     /* indigo-500 */
+  --primary-light: #2A2F5C;    /* tinted indigo for surfaces */
+  --accent: #A78BFA;           /* violet-400 */
+  --accent-dark: #8B5CF6;      /* violet-500 */
+  --bg: #0F1117;               /* base */
+  --bg-card: #181B26;          /* card surface */
+  --bg-elevated: #1F2333;      /* elevated surface */
+  --text: #F1F2F6;
+  --text-soft: #9CA3B5;
+  --text-light: #5F6478;
+  --border: #2A2F44;
+  --border-soft: #1F2333;
+  --green: #4ADE80;
+  --green-bg: rgba(74, 222, 128, .12);
+  --red: #F87171;
+  --red-bg: rgba(248, 113, 113, .12);
+  --shadow: 0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.5);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
 }
+html { color-scheme: dark; }
 html, body {
   height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -42,6 +46,18 @@ html, body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: contain;
 }
+/* Subtle ambient background gradient for depth */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(129,140,248,.18), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(167,139,250,.10), transparent 70%);
+  z-index: 0;
+}
+#app { position: relative; z-index: 1; }
 button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 input, select, textarea { font: inherit; }
 input[type=number] { -moz-appearance: textfield; }
@@ -102,6 +118,7 @@ section.tab.active { display: block; animation: fade .2s ease; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 4px;
   margin-bottom: 18px;
@@ -114,8 +131,8 @@ section.tab.active { display: block; animation: fade .2s ease; }
   color: var(--text-soft);
   transition: all .2s;
 }
-.tipo-toggle button.active.gasto { background: var(--red); color: #fff; box-shadow: 0 2px 6px rgba(198,40,40,.3); }
-.tipo-toggle button.active.ingreso { background: var(--green); color: #fff; box-shadow: 0 2px 6px rgba(46,125,50,.3); }
+.tipo-toggle button.active.gasto { background: var(--red); color: #0F1117; box-shadow: 0 2px 8px rgba(248,113,113,.4); }
+.tipo-toggle button.active.ingreso { background: var(--green); color: #0F1117; box-shadow: 0 2px 8px rgba(74,222,128,.4); }
 .tipo-toggle button .icon { font-size: 18px; margin-right: 6px; }
 
 .field { margin-bottom: 16px; }
@@ -133,19 +150,21 @@ section.tab.active { display: block; animation: fade .2s ease; }
   padding: 14px 14px;
   border: 1.5px solid var(--border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--bg-elevated);
   font-size: 16px;
   color: var(--text);
   appearance: none;
   -webkit-appearance: none;
+  color-scheme: dark;
 }
 .field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B6B6B' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239CA3B5' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 38px;
 }
-.field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+.field input::placeholder { color: var(--text-light); }
+.field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(129,140,248,.18); }
 
 .amount-input {
   font-size: 28px !important;
@@ -174,29 +193,29 @@ section.tab.active { display: block; animation: fade .2s ease; }
 .btn-primary {
   width: 100%;
   padding: 18px;
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   color: #fff;
   border-radius: 14px;
   font-size: 17px;
   font-weight: 600;
   letter-spacing: -.01em;
-  transition: transform .1s, background .15s;
-  box-shadow: 0 4px 12px rgba(194,24,91,.3);
+  transition: transform .1s, filter .15s;
+  box-shadow: 0 6px 18px rgba(129,140,248,.35);
 }
-.btn-primary:active { transform: scale(.98); background: var(--primary-dark); }
+.btn-primary:active { transform: scale(.98); filter: brightness(.92); }
 .btn-primary:disabled { background: var(--text-light); box-shadow: none; }
 
 .btn-secondary {
   width: 100%;
   padding: 14px;
-  background: var(--bg);
+  background: var(--bg-elevated);
   color: var(--text);
   border-radius: 12px;
   font-size: 15px;
   font-weight: 500;
   border: 1px solid var(--border);
 }
-.btn-secondary:active { background: var(--border-soft); }
+.btn-secondary:active { background: var(--border); }
 
 /* MOVIMIENTOS TAB */
 .month-picker {
@@ -365,7 +384,7 @@ nav.tabs button.fab .tab-icon-fab {
   font-size: 30px;
   display: grid;
   place-items: center;
-  box-shadow: 0 6px 16px rgba(194,24,91,.4);
+  box-shadow: 0 8px 22px rgba(129,140,248,.45);
   margin-bottom: 4px;
   margin-top: -22px;
   transition: transform .15s;
@@ -445,19 +464,21 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   bottom: calc(96px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: rgba(20,20,20,.92);
+  background: rgba(40,46,72,.96);
   color: #fff;
   padding: 12px 20px;
   border-radius: 24px;
   font-size: 14px;
   font-weight: 500;
-  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
   z-index: 300;
   opacity: 0;
   transition: all .3s;
   pointer-events: none;
   white-space: nowrap;
   max-width: 90vw;
+  backdrop-filter: blur(8px);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--red); }
@@ -488,7 +509,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 <div id="app">
   <header>
     <div class="header-row">
-      <div class="app-title" id="userTitle">Mi Cash Flow</div>
+      <div class="app-title" id="userTitle">🏠 Familia Cason-Ronco</div>
       <button class="icon-btn" id="btnSettings" aria-label="Configuración">⚙️</button>
     </div>
     <div class="saldo-block">
@@ -595,7 +616,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 
     <div class="section">
       <div class="section-title">Quién soy</div>
-      <input type="text" id="cfgUser" placeholder="Tu nombre" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;">
+      <input type="text" id="cfgUser" placeholder="Tu nombre" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg-elevated);color:var(--text);">
       <p class="help">Aparece junto a cada movimiento que cargues.</p>
     </div>
 
@@ -605,7 +626,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
         <span class="sync-dot"></span>
         <span id="syncStatusText">Sin conectar</span>
       </div>
-      <input type="text" id="cfgSyncUrl" placeholder="URL del Apps Script (ver instrucciones)" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;">
+      <input type="text" id="cfgSyncUrl" placeholder="URL del Apps Script (ver instrucciones)" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;background:var(--bg-elevated);color:var(--text);">
       <p class="help">Pegá acá la URL del web app de Google Apps Script para sincronizar entre celulares. Ver instrucciones en el archivo "INSTRUCCIONES_SYNC.md".</p>
       <button class="btn-secondary" id="btnTestSync" style="margin-top:10px;">Probar conexión</button>
     </div>
@@ -751,7 +772,7 @@ function renderHeader() {
   document.getElementById('metaIng').textContent = fmt(ing);
   document.getElementById('metaGas').textContent = fmt(gas);
   document.getElementById('saldoLabel').textContent = `Saldo de ${MESES[state.selectedMonth.getMonth()]}`;
-  document.getElementById('userTitle').textContent = config.user ? `Hola, ${config.user}` : 'Mi Cash Flow';
+  document.getElementById('userTitle').textContent = config.user ? `🏠 Hola, ${config.user}` : '🏠 Familia Cason-Ronco';
 }
 
 function renderCategorias() {
