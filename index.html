@@ -11,7 +11,7 @@
 <meta name="application-name" content="Cason-Ronco">
 <title>Familia Cason-Ronco</title>
 
-<!-- Favicons (pestaña del navegador) -->
+<!-- Favicons -->
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
 <link rel="shortcut icon" href="favicon-32.png">
@@ -27,15 +27,14 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
-  /* Paleta dark mode índigo + violeta */
-  --primary: #818CF8;          /* indigo-400 */
-  --primary-dark: #6366F1;     /* indigo-500 */
-  --primary-light: #2A2F5C;    /* tinted indigo for surfaces */
-  --accent: #A78BFA;           /* violet-400 */
-  --accent-dark: #8B5CF6;      /* violet-500 */
-  --bg: #0F1117;               /* base */
-  --bg-card: #181B26;          /* card surface */
-  --bg-elevated: #1F2333;      /* elevated surface */
+  --primary: #818CF8;
+  --primary-dark: #6366F1;
+  --primary-light: #2A2F5C;
+  --accent: #A78BFA;
+  --accent-dark: #8B5CF6;
+  --bg: #0F1117;
+  --bg-card: #181B26;
+  --bg-elevated: #1F2333;
   --text: #F1F2F6;
   --text-soft: #9CA3B5;
   --text-light: #5F6478;
@@ -61,7 +60,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: contain;
 }
-/* Subtle ambient background gradient for depth */
 body::before {
   content: '';
   position: fixed;
@@ -78,7 +76,6 @@ input, select, textarea { font: inherit; }
 input[type=number] { -moz-appearance: textfield; }
 input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-/* App shell */
 #app {
   display: flex;
   flex-direction: column;
@@ -86,8 +83,6 @@ input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner
   min-height: 100dvh;
 }
 header {
-  /* Foto de la familia con un degradé oscuro encima para que se lea el texto.
-     Si la foto no existe, queda el fallback índigo→violeta. */
   background-color: var(--primary-dark);
   background-image:
     linear-gradient(180deg, rgba(15,17,23,.35) 0%, rgba(15,17,23,.78) 70%, rgba(15,17,23,.92) 100%),
@@ -134,7 +129,6 @@ section.tab { display: none; }
 section.tab.active { display: block; animation: fade .2s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-/* CARGAR TAB */
 .entry-card {
   background: var(--bg-card);
   border-radius: 18px;
@@ -201,9 +195,7 @@ section.tab.active { display: block; animation: fade .2s ease; }
   letter-spacing: -.01em;
   padding: 16px 18px !important;
 }
-.amount-prefix {
-  position: relative;
-}
+.amount-prefix { position: relative; }
 .amount-prefix::before {
   content: '$';
   position: absolute;
@@ -245,7 +237,6 @@ section.tab.active { display: block; animation: fade .2s ease; }
 }
 .btn-secondary:active { background: var(--border); }
 
-/* MOVIMIENTOS TAB */
 .month-picker {
   display: flex;
   align-items: center;
@@ -297,87 +288,35 @@ section.tab.active { display: block; animation: fade .2s ease; }
 .mov-empty .icon { font-size: 48px; margin-bottom: 12px; opacity: .5; }
 .mov-empty .text { font-size: 15px; }
 
-/* RESUMEN TAB */
-.kpi-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.kpi-card {
-  background: var(--bg-card);
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
+.kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.kpi-card { background: var(--bg-card); border-radius: 14px; padding: 14px; box-shadow: var(--shadow); }
 .kpi-label { font-size: 11px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; }
 .kpi-value { font-size: 22px; font-weight: 700; margin-top: 4px; letter-spacing: -.01em; }
 .kpi-value.ingreso { color: var(--green); }
 .kpi-value.gasto { color: var(--red); }
 .kpi-value.saldo { color: var(--primary); }
 
-.summary-card {
-  background: var(--bg-card);
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: var(--shadow);
-  margin-bottom: 14px;
-}
-.summary-card h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-soft);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-bottom: 12px;
-}
+.summary-card { background: var(--bg-card); border-radius: 14px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.summary-card h3 { font-size: 13px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
 
-.month-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
+.month-bar { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
 .month-bar:last-child { margin-bottom: 0; }
-.month-bar .month-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
-}
+.month-bar .month-label { display: flex; justify-content: space-between; font-size: 13px; }
 .month-bar .month-name { font-weight: 500; }
 .month-bar .month-amount { font-weight: 600; }
 .month-bar .month-amount.pos { color: var(--green); }
 .month-bar .month-amount.neg { color: var(--red); }
-.month-bar .bar-track {
-  height: 6px;
-  background: var(--bg);
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-}
-.month-bar .bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  border-radius: 3px;
-  transition: width .3s;
-}
+.month-bar .bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; position: relative; }
+.month-bar .bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width .3s; }
 .month-bar .bar-fill.neg { background: linear-gradient(90deg, var(--red), #FF6B6B); }
 
 .cat-breakdown { display: flex; flex-direction: column; gap: 10px; }
-.cat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-soft);
-}
+.cat-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
 .cat-row:last-child { border: none; padding-bottom: 0; }
 .cat-name { color: var(--text); }
 .cat-amount { font-weight: 600; color: var(--red); }
 .cat-pct { font-size: 11px; color: var(--text-light); margin-left: 6px; }
 
-/* TABS */
 nav.tabs {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -401,9 +340,7 @@ nav.tabs button {
 }
 nav.tabs button.active { color: var(--primary); }
 nav.tabs button .tab-icon { font-size: 22px; }
-nav.tabs button.fab {
-  position: relative;
-}
+nav.tabs button.fab { position: relative; }
 nav.tabs button.fab .tab-icon-fab {
   width: 52px; height: 52px;
   border-radius: 50%;
@@ -419,7 +356,6 @@ nav.tabs button.fab .tab-icon-fab {
 }
 nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 
-/* SETTINGS DRAWER */
 .drawer-backdrop {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.45);
@@ -454,18 +390,14 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   justify-content: space-between;
   margin-bottom: 18px;
 }
-.drawer h2 {
-  font-size: 18px;
-  font-weight: 600;
-}
+.drawer h2 { font-size: 18px; font-weight: 600; }
 .drawer-close {
   width: 36px; height: 36px;
   border-radius: 50%;
   background: var(--bg-elevated);
   color: var(--text-soft);
   font-size: 16px;
-  display: grid;
-  place-items: center;
+  display: grid; place-items: center;
   border: 1px solid var(--border);
   transition: background .15s, color .15s;
 }
@@ -479,12 +411,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   letter-spacing: .05em;
   margin-bottom: 8px;
 }
-.drawer .help {
-  font-size: 12px;
-  color: var(--text-soft);
-  margin-top: 6px;
-  line-height: 1.5;
-}
+.drawer .help { font-size: 12px; color: var(--text-soft); margin-top: 6px; line-height: 1.5; }
 .drawer .danger { color: var(--red); }
 .sync-status {
   display: flex;
@@ -503,7 +430,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 .sync-dot.pulse { animation: pulse 1.2s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 
-/* TOAST */
 .toast {
   position: fixed;
   bottom: calc(96px + var(--safe-bottom));
@@ -529,7 +455,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 .toast.error { background: var(--red); }
 .toast.success { background: var(--green); }
 
-/* SWIPE TO DELETE */
 .mov-item .delete-btn {
   width: 32px; height: 32px;
   border-radius: 8px;
@@ -568,7 +493,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   </header>
 
   <main>
-    <!-- CARGAR -->
     <section class="tab active" id="tab-cargar">
       <div class="entry-card">
         <div class="tipo-toggle" id="tipoToggle">
@@ -595,7 +519,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
       </div>
     </section>
 
-    <!-- MOVIMIENTOS -->
     <section class="tab" id="tab-movimientos">
       <div class="month-picker">
         <button class="nav-btn" id="prevMonth">‹</button>
@@ -611,7 +534,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
       <div class="mov-list" id="movList"></div>
     </section>
 
-    <!-- RESUMEN -->
     <section class="tab" id="tab-resumen">
       <div class="kpi-row">
         <div class="kpi-card">
@@ -653,7 +575,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
     </button>
   </nav>
 
-  <!-- SETTINGS DRAWER -->
   <div class="drawer-backdrop" id="backdrop"></div>
   <div class="drawer" id="drawer">
     <div class="grabber"></div>
@@ -675,7 +596,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
         <span id="syncStatusText">Sin conectar</span>
       </div>
       <input type="text" id="cfgSyncUrl" placeholder="URL del Apps Script (ver instrucciones)" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;background:var(--bg-elevated);color:var(--text);">
-      <p class="help">Pegá acá la URL del web app de Google Apps Script para sincronizar entre celulares. Ver instrucciones en el archivo "INSTRUCCIONES_SYNC.md".</p>
+      <p class="help">Pegá acá la URL del web app de Google Apps Script para sincronizar entre celulares.</p>
       <button class="btn-secondary" id="btnTestSync" style="margin-top:10px;">Probar conexión</button>
     </div>
 
@@ -695,7 +616,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
     <button class="btn-primary" id="btnDrawerSave" style="margin-top:8px;">Guardar y cerrar</button>
 
     <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;margin-top:18px;">
-      Familia Cason-Ronco · v1.1
+      Familia Cason-Ronco · v1.2
     </div>
   </div>
 
@@ -703,9 +624,6 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 </div>
 
 <script>
-// ==============================================================
-//  CATEGORÍAS
-// ==============================================================
 const CATS = [
   {tipo:'Ingreso',  cat:'Sueldo'},
   {tipo:'Ingreso',  cat:'Aguinaldo / Bonos'},
@@ -745,11 +663,8 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 const STORAGE_KEY = 'cashflow_v1';
 const CONFIG_KEY = 'cashflow_cfg_v1';
 
-// ==============================================================
-//  STATE
-// ==============================================================
 let state = {
-  movimientos: [],     // [{id, fecha, tipo, categoria, descripcion, monto, cargadoPor, ts}]
+  movimientos: [],
   selectedMonth: new Date(),
   currentTipo: 'Gasto',
   currentTab: 'cargar',
@@ -759,12 +674,8 @@ let config = {
   syncUrl: '',
   lastSync: null,
 };
-let syncing = false;
 let syncTimer = null;
 
-// ==============================================================
-//  STORAGE
-// ==============================================================
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -773,26 +684,52 @@ function loadState() {
     if (cfg) config = Object.assign(config, JSON.parse(cfg));
   } catch (e) { console.error(e); }
 }
-function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.movimientos));
-}
-function saveConfig() {
-  localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.movimientos)); }
+function saveConfig() { localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); }
 
-// ==============================================================
-//  HELPERS
-// ==============================================================
 const fmt = (n) => {
   const v = Number(n) || 0;
   const sign = v < 0 ? '-' : '';
   const abs = Math.abs(v);
   return sign + '$' + abs.toLocaleString('es-AR', {maximumFractionDigits: 0});
 };
+
+// Normaliza una fecha a "YYYY-MM-DD" — soporta:
+//   "2026-04-27"
+//   "2026-04-27T03:00:00.000Z"  (formato ISO de Sheets)
+//   Date objects
+//   números (serial date de Excel/Sheets)
+const normFecha = (val) => {
+  if (!val) return '';
+  if (val instanceof Date) {
+    const y = val.getFullYear();
+    const m = String(val.getMonth()+1).padStart(2,'0');
+    const d = String(val.getDate()).padStart(2,'0');
+    return `${y}-${m}-${d}`;
+  }
+  const s = String(val);
+  // si arranca con yyyy-mm-dd, tomamos solo eso
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  // fallback: intentar parsear como Date
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const mo = String(d.getMonth()+1).padStart(2,'0');
+    const da = String(d.getDate()).padStart(2,'0');
+    return `${y}-${mo}-${da}`;
+  }
+  return '';
+};
+
 const fmtFecha = (iso) => {
-  const d = new Date(iso + 'T00:00:00');
+  const norm = normFecha(iso);
+  if (!norm) return '';
+  const d = new Date(norm + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
   return d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
 };
+
 const todayISO = () => new Date().toISOString().slice(0,10);
 const uuid = () => 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
 
@@ -807,12 +744,9 @@ function showToast(msg, type='') {
 function monthKey(date) {
   return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0');
 }
-function monthOfISO(iso) { return iso.slice(0,7); }
-function yearOfISO(iso) { return iso.slice(0,4); }
+function monthOfISO(iso) { return normFecha(iso).slice(0,7); }
+function yearOfISO(iso) { return normFecha(iso).slice(0,4); }
 
-// ==============================================================
-//  RENDER
-// ==============================================================
 function renderHeader() {
   const mk = monthKey(state.selectedMonth);
   const mItems = state.movimientos.filter(m => monthOfISO(m.fecha) === mk);
@@ -867,7 +801,6 @@ function renderMovimientos() {
     `).join('');
   }
 
-  // Month label
   document.getElementById('monthLabel').textContent =
     `${MESES[state.selectedMonth.getMonth()]} ${state.selectedMonth.getFullYear()}`;
   const ing = mItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
@@ -885,9 +818,8 @@ function renderResumen() {
   document.getElementById('kpiGasAnio').textContent = fmt(gas);
   document.getElementById('kpiSaldoAnio').textContent = fmt(ing - gas);
 
-  // Month-by-month bars
   const monthly = MESES.map((name, idx) => {
-    const items = yItems.filter(m => Number(m.fecha.slice(5,7)) === idx+1);
+    const items = yItems.filter(m => Number(normFecha(m.fecha).slice(5,7)) === idx+1);
     const i = items.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
     const g = items.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
     return { name, saldo: i - g };
@@ -907,7 +839,6 @@ function renderResumen() {
       </div>
     `).join('') || '<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Aún sin movimientos en el año.</p>';
 
-  // Categories breakdown
   const catTotals = {};
   yItems.filter(m=>m.tipo==='Gasto').forEach(m => {
     catTotals[m.categoria] = (catTotals[m.categoria]||0) + (+m.monto||0);
@@ -934,9 +865,6 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// ==============================================================
-//  ACTIONS
-// ==============================================================
 async function addMovimiento() {
   const monto = parseFloat(document.getElementById('inMonto').value);
   const cat = document.getElementById('inCategoria').value;
@@ -948,7 +876,7 @@ async function addMovimiento() {
 
   const item = {
     id: uuid(),
-    fecha,
+    fecha: normFecha(fecha),
     tipo: state.currentTipo,
     categoria: cat,
     descripcion: desc,
@@ -963,13 +891,9 @@ async function addMovimiento() {
   showToast('✓ Movimiento guardado', 'success');
   renderAll();
 
-  // Push to cloud
   if (config.syncUrl) {
-    try {
-      await pushToCloud('add', { item });
-    } catch (e) {
-      showToast('Guardado local. Subirá cuando vuelva la conexión', '');
-    }
+    try { await pushToCloud('add', { item }); }
+    catch (e) { showToast('Guardado local. Subirá cuando vuelva la conexión'); }
   }
 }
 
@@ -984,16 +908,12 @@ async function deleteMov(id) {
   }
 }
 
-// ==============================================================
-//  SYNC
-// ==============================================================
 async function pushToCloud(action, payload) {
   if (!config.syncUrl) return;
   setSyncStatus('syncing');
   try {
     const res = await fetch(config.syncUrl, {
       method: 'POST',
-      // Use text/plain to avoid CORS preflight (Apps Script-friendly)
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action, ...payload }),
     });
@@ -1015,10 +935,9 @@ async function pullFromCloud() {
     const res = await fetch(config.syncUrl + (config.syncUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
     const data = await res.json();
     if (!data.success) throw new Error(data.error || 'Error remoto');
-    // Merge: cloud is source of truth
     state.movimientos = (data.items || []).map(i => ({
       id: i.id,
-      fecha: i.fecha,
+      fecha: normFecha(i.fecha),
       tipo: i.tipo,
       categoria: i.categoria,
       descripcion: i.descripcion || '',
@@ -1055,9 +974,6 @@ function startAutoSync() {
   }
 }
 
-// ==============================================================
-//  EXPORT / IMPORT
-// ==============================================================
 function exportJson() {
   const blob = new Blob([JSON.stringify(state.movimientos, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1093,7 +1009,7 @@ function importJson(file) {
       let added = 0;
       data.forEach(it => {
         if (!existing.has(it.id)) {
-          state.movimientos.push(it);
+          state.movimientos.push({...it, fecha: normFecha(it.fecha)});
           added++;
         }
       });
@@ -1107,9 +1023,6 @@ function importJson(file) {
   reader.readAsText(file);
 }
 
-// ==============================================================
-//  EVENT WIRING
-// ==============================================================
 function switchTab(name) {
   state.currentTab = name;
   document.querySelectorAll('section.tab').forEach(s => s.classList.remove('active'));
@@ -1125,7 +1038,6 @@ function openDrawer() {
   document.getElementById('backdrop').classList.add('open');
 }
 function closeDrawer() {
-  // save config
   config.user = document.getElementById('cfgUser').value.trim();
   const newUrl = document.getElementById('cfgSyncUrl').value.trim();
   const urlChanged = newUrl !== config.syncUrl;
@@ -1137,7 +1049,6 @@ function closeDrawer() {
   renderHeader();
 }
 
-// Tipo toggle
 document.getElementById('tipoToggle').addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
@@ -1186,7 +1097,7 @@ document.getElementById('fileImport').addEventListener('change', e => {
   e.target.value = '';
 });
 document.getElementById('btnClearAll').addEventListener('click', () => {
-  if (!confirm('¿Estás segura? Esto borra todos los movimientos de este celular.')) return;
+  if (!confirm('¿Estás seguro? Esto borra todos los movimientos de este celular.')) return;
   if (!confirm('Última confirmación. ¿Borrar todo?')) return;
   state.movimientos = [];
   saveState();
@@ -1194,16 +1105,19 @@ document.getElementById('btnClearAll').addEventListener('click', () => {
   showToast('Todo borrado');
 });
 
-// Pull-to-refresh-ish: refresh on visibility
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && config.syncUrl) pullFromCloud();
 });
 
-// ==============================================================
-//  INIT
-// ==============================================================
 function init() {
   loadState();
+  // Migración: normalizar fechas viejas que pudieran haber quedado mal
+  let migrated = false;
+  state.movimientos.forEach(m => {
+    const norm = normFecha(m.fecha);
+    if (norm && norm !== m.fecha) { m.fecha = norm; migrated = true; }
+  });
+  if (migrated) saveState();
   document.getElementById('inFecha').value = todayISO();
   renderCategorias();
   renderAll();
