@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#C2185B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cash Flow">
+<title>Mi Cash Flow</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💖%3C/text%3E%3C/svg%3E">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+:root {
+  --primary: #C2185B;
+  --primary-dark: #880E4F;
+  --primary-light: #FCE4EC;
+  --accent: #E91E63;
+  --bg: #FAFAFA;
+  --bg-card: #FFFFFF;
+  --text: #1A1A1A;
+  --text-soft: #6B6B6B;
+  --text-light: #A0A0A0;
+  --border: #E8E8E8;
+  --border-soft: #F0F0F0;
+  --green: #2E7D32;
+  --green-bg: #E8F5E9;
+  --red: #C62828;
+  --red-bg: #FFEBEE;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.08);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
+}
+button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font: inherit; }
+input[type=number] { -moz-appearance: textfield; }
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* App shell */
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  padding: calc(16px + var(--safe-top)) 20px 28px;
+  position: relative;
+}
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.app-title { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.icon-btn {
+  width: 38px; height: 38px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.18);
+  display: grid; place-items: center;
+  font-size: 20px;
+  transition: background .15s;
+}
+.icon-btn:active { background: rgba(255,255,255,.32); }
+.saldo-block { text-align: left; }
+.saldo-label { font-size: 12px; opacity: .8; text-transform: uppercase; letter-spacing: .08em; }
+.saldo-amount { font-size: 38px; font-weight: 700; letter-spacing: -.02em; margin-top: 2px; }
+.saldo-meta { display: flex; gap: 16px; margin-top: 12px; font-size: 12px; opacity: .9; }
+.saldo-meta span b { font-weight: 600; }
+
+main {
+  flex: 1;
+  padding: 18px 16px calc(96px + var(--safe-bottom));
+}
+section.tab { display: none; }
+section.tab.active { display: block; animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* CARGAR TAB */
+.entry-card {
+  background: var(--bg-card);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.tipo-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+.tipo-toggle button {
+  padding: 14px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-soft);
+  transition: all .2s;
+}
+.tipo-toggle button.active.gasto { background: var(--red); color: #fff; box-shadow: 0 2px 6px rgba(198,40,40,.3); }
+.tipo-toggle button.active.ingreso { background: var(--green); color: #fff; box-shadow: 0 2px 6px rgba(46,125,50,.3); }
+.tipo-toggle button .icon { font-size: 18px; margin-right: 6px; }
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+.field input[type=text], .field input[type=number], .field input[type=date], .field select {
+  width: 100%;
+  padding: 14px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 16px;
+  color: var(--text);
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B6B6B' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 38px;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+
+.amount-input {
+  font-size: 28px !important;
+  font-weight: 700;
+  text-align: right;
+  letter-spacing: -.01em;
+  padding: 16px 18px !important;
+}
+.amount-prefix {
+  position: relative;
+}
+.amount-prefix::before {
+  content: '$';
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-light);
+  pointer-events: none;
+  z-index: 1;
+}
+.amount-prefix input { padding-left: 38px !important; }
+
+.btn-primary {
+  width: 100%;
+  padding: 18px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  transition: transform .1s, background .15s;
+  box-shadow: 0 4px 12px rgba(194,24,91,.3);
+}
+.btn-primary:active { transform: scale(.98); background: var(--primary-dark); }
+.btn-primary:disabled { background: var(--text-light); box-shadow: none; }
+
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+.btn-secondary:active { background: var(--border-soft); }
+
+/* MOVIMIENTOS TAB */
+.month-picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.month-picker .label { font-weight: 600; font-size: 16px; }
+.month-picker .nav-btn { font-size: 24px; color: var(--primary); padding: 4px 12px; }
+.month-stats { display: flex; gap: 8px; font-size: 12px; color: var(--text-soft); margin-top: 4px; }
+.month-stats .ing { color: var(--green); }
+.month-stats .gas { color: var(--red); }
+
+.mov-list { display: flex; flex-direction: column; gap: 8px; }
+.mov-item {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.mov-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.mov-icon.ingreso { background: var(--green-bg); color: var(--green); }
+.mov-icon.gasto { background: var(--red-bg); color: var(--red); }
+.mov-info { flex: 1; min-width: 0; }
+.mov-cat { font-weight: 600; font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov-desc { font-size: 13px; color: var(--text-soft); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mov-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.mov-amount { font-weight: 700; font-size: 16px; flex-shrink: 0; text-align: right; }
+.mov-amount.ingreso { color: var(--green); }
+.mov-amount.gasto { color: var(--red); }
+.mov-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-soft);
+}
+.mov-empty .icon { font-size: 48px; margin-bottom: 12px; opacity: .5; }
+.mov-empty .text { font-size: 15px; }
+
+/* RESUMEN TAB */
+.kpi-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.kpi-label { font-size: 11px; font-weight: 600; color: var(--text-soft); text-transform: uppercase; letter-spacing: .05em; }
+.kpi-value { font-size: 22px; font-weight: 700; margin-top: 4px; letter-spacing: -.01em; }
+.kpi-value.ingreso { color: var(--green); }
+.kpi-value.gasto { color: var(--red); }
+.kpi-value.saldo { color: var(--primary); }
+
+.summary-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.summary-card h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 12px;
+}
+
+.month-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.month-bar:last-child { margin-bottom: 0; }
+.month-bar .month-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.month-bar .month-name { font-weight: 500; }
+.month-bar .month-amount { font-weight: 600; }
+.month-bar .month-amount.pos { color: var(--green); }
+.month-bar .month-amount.neg { color: var(--red); }
+.month-bar .bar-track {
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.month-bar .bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 3px;
+  transition: width .3s;
+}
+.month-bar .bar-fill.neg { background: linear-gradient(90deg, var(--red), #FF6B6B); }
+
+.cat-breakdown { display: flex; flex-direction: column; gap: 10px; }
+.cat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.cat-row:last-child { border: none; padding-bottom: 0; }
+.cat-name { color: var(--text); }
+.cat-amount { font-weight: 600; color: var(--red); }
+.cat-pct { font-size: 11px; color: var(--text-light); margin-left: 6px; }
+
+/* TABS */
+nav.tabs {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 8px 0 calc(8px + var(--safe-bottom));
+  z-index: 100;
+}
+nav.tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 500;
+  transition: color .15s;
+}
+nav.tabs button.active { color: var(--primary); }
+nav.tabs button .tab-icon { font-size: 22px; }
+nav.tabs button.fab {
+  position: relative;
+}
+nav.tabs button.fab .tab-icon-fab {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  font-size: 30px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 16px rgba(194,24,91,.4);
+  margin-bottom: 4px;
+  margin-top: -22px;
+  transition: transform .15s;
+}
+nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
+
+/* SETTINGS DRAWER */
+.drawer-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-card);
+  border-radius: 22px 22px 0 0;
+  z-index: 201;
+  padding: 12px 20px calc(24px + var(--safe-bottom));
+  transform: translateY(100%);
+  transition: transform .25s cubic-bezier(.4, 0, .2, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.drawer.open { transform: translateY(0); }
+.drawer .grabber {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.drawer h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.drawer .section { margin-bottom: 22px; }
+.drawer .section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.drawer .help {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.drawer .danger { color: var(--red); }
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.sync-status.connected { background: var(--green-bg); color: var(--green); }
+.sync-status.disconnected { background: var(--bg); color: var(--text-soft); }
+.sync-status.syncing { background: var(--primary-light); color: var(--primary); }
+.sync-status.error { background: var(--red-bg); color: var(--red); }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.sync-dot.pulse { animation: pulse 1.2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: calc(96px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(20,20,20,.92);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  z-index: 300;
+  opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: 90vw;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.error { background: var(--red); }
+.toast.success { background: var(--green); }
+
+/* SWIPE TO DELETE */
+.mov-item .delete-btn {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--red-bg);
+  color: var(--red);
+  display: grid; place-items: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.mov-item:hover .delete-btn, .mov-item.show-delete .delete-btn { opacity: 1; }
+
+@media (min-width: 600px) {
+  main, header { max-width: 480px; margin-left: auto; margin-right: auto; }
+  nav.tabs { max-width: 480px; left: 50%; transform: translateX(-50%); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .drawer { max-width: 480px; left: 50%; transform: translateX(-50%) translateY(100%); }
+  .drawer.open { transform: translateX(-50%) translateY(0); }
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-row">
+      <div class="app-title" id="userTitle">Mi Cash Flow</div>
+      <button class="icon-btn" id="btnSettings" aria-label="Configuración">⚙️</button>
+    </div>
+    <div class="saldo-block">
+      <div class="saldo-label" id="saldoLabel">Saldo de este mes</div>
+      <div class="saldo-amount" id="saldoAmount">$0</div>
+      <div class="saldo-meta">
+        <span>Ingresos: <b id="metaIng">$0</b></span>
+        <span>Gastos: <b id="metaGas">$0</b></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- CARGAR -->
+    <section class="tab active" id="tab-cargar">
+      <div class="entry-card">
+        <div class="tipo-toggle" id="tipoToggle">
+          <button data-tipo="Gasto" class="active gasto"><span class="icon">−</span>Gasto</button>
+          <button data-tipo="Ingreso" class="ingreso"><span class="icon">+</span>Ingreso</button>
+        </div>
+        <div class="field amount-prefix">
+          <label>Monto</label>
+          <input type="number" id="inMonto" inputmode="decimal" placeholder="0" class="amount-input" step="any" min="0">
+        </div>
+        <div class="field">
+          <label>Categoría</label>
+          <select id="inCategoria"></select>
+        </div>
+        <div class="field">
+          <label>Descripción <span style="font-weight:400;color:var(--text-light);text-transform:none;">(opcional)</span></label>
+          <input type="text" id="inDesc" placeholder="Ej: Compra Coto" maxlength="80">
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="inFecha">
+        </div>
+        <button class="btn-primary" id="btnGuardar">Guardar movimiento</button>
+      </div>
+    </section>
+
+    <!-- MOVIMIENTOS -->
+    <section class="tab" id="tab-movimientos">
+      <div class="month-picker">
+        <button class="nav-btn" id="prevMonth">‹</button>
+        <div>
+          <div class="label" id="monthLabel">Abril 2026</div>
+          <div class="month-stats">
+            <span class="ing">↑ <b id="monthIng">$0</b></span>
+            <span class="gas">↓ <b id="monthGas">$0</b></span>
+          </div>
+        </div>
+        <button class="nav-btn" id="nextMonth">›</button>
+      </div>
+      <div class="mov-list" id="movList"></div>
+    </section>
+
+    <!-- RESUMEN -->
+    <section class="tab" id="tab-resumen">
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">Ingresos del año</div>
+          <div class="kpi-value ingreso" id="kpiIngAnio">$0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Gastos del año</div>
+          <div class="kpi-value gasto" id="kpiGasAnio">$0</div>
+        </div>
+      </div>
+      <div class="kpi-card" style="margin-bottom: 14px;">
+        <div class="kpi-label">Saldo del año</div>
+        <div class="kpi-value saldo" id="kpiSaldoAnio">$0</div>
+      </div>
+      <div class="summary-card">
+        <h3>Saldo mes a mes</h3>
+        <div id="monthBars"></div>
+      </div>
+      <div class="summary-card">
+        <h3>Gastos por categoría</h3>
+        <div class="cat-breakdown" id="catBreakdown"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button data-tab="movimientos">
+      <span class="tab-icon">📋</span>
+      <span>Movimientos</span>
+    </button>
+    <button data-tab="cargar" class="fab active">
+      <span class="tab-icon-fab">+</span>
+      <span>Cargar</span>
+    </button>
+    <button data-tab="resumen">
+      <span class="tab-icon">📊</span>
+      <span>Resumen</span>
+    </button>
+  </nav>
+
+  <!-- SETTINGS DRAWER -->
+  <div class="drawer-backdrop" id="backdrop"></div>
+  <div class="drawer" id="drawer">
+    <div class="grabber"></div>
+    <h2>Configuración</h2>
+
+    <div class="section">
+      <div class="section-title">Quién soy</div>
+      <input type="text" id="cfgUser" placeholder="Tu nombre" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;">
+      <p class="help">Aparece junto a cada movimiento que cargues.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sincronización con Google Sheets</div>
+      <div class="sync-status disconnected" id="syncStatus">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">Sin conectar</span>
+      </div>
+      <input type="text" id="cfgSyncUrl" placeholder="URL del Apps Script (ver instrucciones)" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;">
+      <p class="help">Pegá acá la URL del web app de Google Apps Script para sincronizar entre celulares. Ver instrucciones en el archivo "INSTRUCCIONES_SYNC.md".</p>
+      <button class="btn-secondary" id="btnTestSync" style="margin-top:10px;">Probar conexión</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Datos</div>
+      <button class="btn-secondary" id="btnExport" style="margin-bottom:8px;">⬇ Exportar mis datos (.json)</button>
+      <button class="btn-secondary" id="btnExportCsv" style="margin-bottom:8px;">📄 Exportar como Excel (.csv)</button>
+      <button class="btn-secondary" id="btnImport">⬆ Importar datos (.json)</button>
+      <input type="file" id="fileImport" accept=".json,application/json" style="display:none;">
+    </div>
+
+    <div class="section">
+      <div class="section-title">Zona peligrosa</div>
+      <button class="btn-secondary danger" id="btnClearAll" style="color:var(--red);border-color:var(--red-bg);">🗑 Borrar todo</button>
+    </div>
+
+    <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;">
+      v1.0 · Mi Cash Flow
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ==============================================================
+//  CATEGORÍAS
+// ==============================================================
+const CATS = [
+  {tipo:'Ingreso',  cat:'Sueldo'},
+  {tipo:'Ingreso',  cat:'Aguinaldo / Bonos'},
+  {tipo:'Ingreso',  cat:'Otros ingresos'},
+
+  {tipo:'Gasto',    cat:'Vivienda (alquiler/expensas)'},
+  {tipo:'Gasto',    cat:'Luz'},
+  {tipo:'Gasto',    cat:'Gas'},
+  {tipo:'Gasto',    cat:'Agua'},
+  {tipo:'Gasto',    cat:'Internet / Cable'},
+  {tipo:'Gasto',    cat:'Teléfono / Celular'},
+  {tipo:'Gasto',    cat:'Supermercado'},
+  {tipo:'Gasto',    cat:'Transporte / Combustible'},
+  {tipo:'Gasto',    cat:'Empleada doméstica'},
+  {tipo:'Gasto',    cat:'Mantenimiento hogar'},
+  {tipo:'Gasto',    cat:'Salud / Prepaga'},
+  {tipo:'Gasto',    cat:'Farmacia'},
+  {tipo:'Gasto',    cat:'Ropa y calzado'},
+  {tipo:'Gasto',    cat:'Cuidado personal'},
+  {tipo:'Gasto',    cat:'Gimnasio / Deporte'},
+  {tipo:'Gasto',    cat:'Restaurantes / Delivery'},
+  {tipo:'Gasto',    cat:'Salidas / Entretenimiento'},
+  {tipo:'Gasto',    cat:'Viajes / Vacaciones'},
+  {tipo:'Gasto',    cat:'Regalos'},
+  {tipo:'Gasto',    cat:'Mascotas'},
+  {tipo:'Gasto',    cat:'Suscripciones'},
+  {tipo:'Gasto',    cat:'Colegio / Cuotas'},
+  {tipo:'Gasto',    cat:'Útiles escolares'},
+  {tipo:'Gasto',    cat:'Actividades extracurriculares'},
+  {tipo:'Gasto',    cat:'Cumpleaños / Regalos chicos'},
+  {tipo:'Gasto',    cat:'Ropa chicos'},
+  {tipo:'Gasto',    cat:'Otros chicos'},
+  {tipo:'Gasto',    cat:'Otros gastos'},
+];
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const STORAGE_KEY = 'cashflow_v1';
+const CONFIG_KEY = 'cashflow_cfg_v1';
+
+// ==============================================================
+//  STATE
+// ==============================================================
+let state = {
+  movimientos: [],     // [{id, fecha, tipo, categoria, descripcion, monto, cargadoPor, ts}]
+  selectedMonth: new Date(),
+  currentTipo: 'Gasto',
+  currentTab: 'cargar',
+};
+let config = {
+  user: '',
+  syncUrl: '',
+  lastSync: null,
+};
+let syncing = false;
+let syncTimer = null;
+
+// ==============================================================
+//  STORAGE
+// ==============================================================
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state.movimientos = JSON.parse(raw) || [];
+    const cfg = localStorage.getItem(CONFIG_KEY);
+    if (cfg) config = Object.assign(config, JSON.parse(cfg));
+  } catch (e) { console.error(e); }
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.movimientos));
+}
+function saveConfig() {
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+}
+
+// ==============================================================
+//  HELPERS
+// ==============================================================
+const fmt = (n) => {
+  const v = Number(n) || 0;
+  const sign = v < 0 ? '-' : '';
+  const abs = Math.abs(v);
+  return sign + '$' + abs.toLocaleString('es-AR', {maximumFractionDigits: 0});
+};
+const fmtFecha = (iso) => {
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('es-AR', {day:'2-digit', month:'short'});
+};
+const todayISO = () => new Date().toISOString().slice(0,10);
+const uuid = () => 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function monthKey(date) {
+  return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0');
+}
+function monthOfISO(iso) { return iso.slice(0,7); }
+function yearOfISO(iso) { return iso.slice(0,4); }
+
+// ==============================================================
+//  RENDER
+// ==============================================================
+function renderHeader() {
+  const mk = monthKey(state.selectedMonth);
+  const mItems = state.movimientos.filter(m => monthOfISO(m.fecha) === mk);
+  const ing = mItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
+  const gas = mItems.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
+  document.getElementById('saldoAmount').textContent = fmt(ing - gas);
+  document.getElementById('metaIng').textContent = fmt(ing);
+  document.getElementById('metaGas').textContent = fmt(gas);
+  document.getElementById('saldoLabel').textContent = `Saldo de ${MESES[state.selectedMonth.getMonth()]}`;
+  document.getElementById('userTitle').textContent = config.user ? `Hola, ${config.user}` : 'Mi Cash Flow';
+}
+
+function renderCategorias() {
+  const sel = document.getElementById('inCategoria');
+  const tipo = state.currentTipo;
+  sel.innerHTML = '';
+  CATS.filter(c => c.tipo === tipo).forEach(c => {
+    const o = document.createElement('option');
+    o.value = c.cat;
+    o.textContent = c.cat;
+    sel.appendChild(o);
+  });
+}
+
+function renderMovimientos() {
+  const mk = monthKey(state.selectedMonth);
+  const mItems = state.movimientos
+    .filter(m => monthOfISO(m.fecha) === mk)
+    .sort((a,b) => (b.fecha + b.id).localeCompare(a.fecha + a.id));
+
+  const list = document.getElementById('movList');
+  if (mItems.length === 0) {
+    list.innerHTML = `
+      <div class="mov-empty">
+        <div class="icon">📭</div>
+        <div class="text">No hay movimientos en ${MESES[state.selectedMonth.getMonth()]}</div>
+      </div>`;
+  } else {
+    list.innerHTML = mItems.map(m => `
+      <div class="mov-item" data-id="${m.id}">
+        <div class="mov-icon ${m.tipo.toLowerCase()}">${m.tipo === 'Ingreso' ? '↑' : '↓'}</div>
+        <div class="mov-info">
+          <div class="mov-cat">${escapeHtml(m.categoria)}</div>
+          ${m.descripcion ? `<div class="mov-desc">${escapeHtml(m.descripcion)}</div>` : ''}
+          <div class="mov-meta">${fmtFecha(m.fecha)}${m.cargadoPor ? ' · ' + escapeHtml(m.cargadoPor) : ''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="mov-amount ${m.tipo.toLowerCase()}">${m.tipo==='Ingreso'?'+':'−'} ${fmt(m.monto).replace('-','')}</div>
+          <button class="delete-btn" onclick="deleteMov('${m.id}')" aria-label="Eliminar">🗑</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Month label
+  document.getElementById('monthLabel').textContent =
+    `${MESES[state.selectedMonth.getMonth()]} ${state.selectedMonth.getFullYear()}`;
+  const ing = mItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
+  const gas = mItems.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
+  document.getElementById('monthIng').textContent = fmt(ing);
+  document.getElementById('monthGas').textContent = fmt(gas);
+}
+
+function renderResumen() {
+  const yr = state.selectedMonth.getFullYear();
+  const yItems = state.movimientos.filter(m => yearOfISO(m.fecha) === String(yr));
+  const ing = yItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
+  const gas = yItems.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
+  document.getElementById('kpiIngAnio').textContent = fmt(ing);
+  document.getElementById('kpiGasAnio').textContent = fmt(gas);
+  document.getElementById('kpiSaldoAnio').textContent = fmt(ing - gas);
+
+  // Month-by-month bars
+  const monthly = MESES.map((name, idx) => {
+    const items = yItems.filter(m => Number(m.fecha.slice(5,7)) === idx+1);
+    const i = items.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
+    const g = items.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
+    return { name, saldo: i - g };
+  });
+  const maxAbs = Math.max(...monthly.map(m=>Math.abs(m.saldo)), 1);
+  document.getElementById('monthBars').innerHTML = monthly
+    .filter(m => m.saldo !== 0)
+    .map(m => `
+      <div class="month-bar">
+        <div class="month-label">
+          <span class="month-name">${m.name}</span>
+          <span class="month-amount ${m.saldo>=0?'pos':'neg'}">${fmt(m.saldo)}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${m.saldo<0?'neg':''}" style="width:${(Math.abs(m.saldo)/maxAbs)*100}%"></div>
+        </div>
+      </div>
+    `).join('') || '<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Aún sin movimientos en el año.</p>';
+
+  // Categories breakdown
+  const catTotals = {};
+  yItems.filter(m=>m.tipo==='Gasto').forEach(m => {
+    catTotals[m.categoria] = (catTotals[m.categoria]||0) + (+m.monto||0);
+  });
+  const catRows = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const totalGas = gas || 1;
+  document.getElementById('catBreakdown').innerHTML = catRows.length === 0
+    ? '<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Sin gastos cargados.</p>'
+    : catRows.map(([cat, amt]) => `
+        <div class="cat-row">
+          <span class="cat-name">${escapeHtml(cat)}</span>
+          <span><span class="cat-amount">${fmt(amt)}</span><span class="cat-pct">${((amt/totalGas)*100).toFixed(0)}%</span></span>
+        </div>
+      `).join('');
+}
+
+function renderAll() {
+  renderHeader();
+  renderMovimientos();
+  renderResumen();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ==============================================================
+//  ACTIONS
+// ==============================================================
+async function addMovimiento() {
+  const monto = parseFloat(document.getElementById('inMonto').value);
+  const cat = document.getElementById('inCategoria').value;
+  const desc = document.getElementById('inDesc').value.trim();
+  const fecha = document.getElementById('inFecha').value;
+  if (!monto || monto <= 0) { showToast('Ingresá un monto válido', 'error'); return; }
+  if (!cat) { showToast('Elegí una categoría', 'error'); return; }
+  if (!fecha) { showToast('Elegí una fecha', 'error'); return; }
+
+  const item = {
+    id: uuid(),
+    fecha,
+    tipo: state.currentTipo,
+    categoria: cat,
+    descripcion: desc,
+    monto: Math.round(monto * 100) / 100,
+    cargadoPor: config.user || '',
+    ts: new Date().toISOString(),
+  };
+  state.movimientos.push(item);
+  saveState();
+  document.getElementById('inMonto').value = '';
+  document.getElementById('inDesc').value = '';
+  showToast('✓ Movimiento guardado', 'success');
+  renderAll();
+
+  // Push to cloud
+  if (config.syncUrl) {
+    try {
+      await pushToCloud('add', { item });
+    } catch (e) {
+      showToast('Guardado local. Subirá cuando vuelva la conexión', '');
+    }
+  }
+}
+
+async function deleteMov(id) {
+  if (!confirm('¿Eliminar este movimiento?')) return;
+  state.movimientos = state.movimientos.filter(m => m.id !== id);
+  saveState();
+  renderAll();
+  showToast('Movimiento eliminado');
+  if (config.syncUrl) {
+    try { await pushToCloud('delete', { id }); } catch (e) {}
+  }
+}
+
+// ==============================================================
+//  SYNC
+// ==============================================================
+async function pushToCloud(action, payload) {
+  if (!config.syncUrl) return;
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(config.syncUrl, {
+      method: 'POST',
+      // Use text/plain to avoid CORS preflight (Apps Script-friendly)
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, ...payload }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Error remoto');
+    config.lastSync = Date.now();
+    saveConfig();
+    setSyncStatus('connected');
+  } catch (e) {
+    setSyncStatus('error', e.message);
+    throw e;
+  }
+}
+
+async function pullFromCloud() {
+  if (!config.syncUrl) return;
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(config.syncUrl + (config.syncUrl.includes('?') ? '&' : '?') + 't=' + Date.now());
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Error remoto');
+    // Merge: cloud is source of truth
+    state.movimientos = (data.items || []).map(i => ({
+      id: i.id,
+      fecha: i.fecha,
+      tipo: i.tipo,
+      categoria: i.categoria,
+      descripcion: i.descripcion || '',
+      monto: Number(i.monto) || 0,
+      cargadoPor: i.cargadoPor || '',
+      ts: i.timestamp || i.ts || '',
+    }));
+    saveState();
+    config.lastSync = Date.now();
+    saveConfig();
+    setSyncStatus('connected');
+    renderAll();
+  } catch (e) {
+    setSyncStatus('error', e.message);
+  }
+}
+
+function setSyncStatus(status, msg) {
+  const el = document.getElementById('syncStatus');
+  const txt = document.getElementById('syncStatusText');
+  el.className = 'sync-status ' + status;
+  el.querySelector('.sync-dot').classList.toggle('pulse', status==='syncing');
+  if (status==='connected') txt.textContent = 'Conectado · ' + (config.lastSync ? new Date(config.lastSync).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : 'ahora');
+  else if (status==='syncing') txt.textContent = 'Sincronizando...';
+  else if (status==='error') txt.textContent = 'Error: ' + (msg || 'no se pudo conectar');
+  else txt.textContent = 'Sin conectar (datos solo en este celular)';
+}
+
+function startAutoSync() {
+  if (syncTimer) clearInterval(syncTimer);
+  if (config.syncUrl) {
+    pullFromCloud();
+    syncTimer = setInterval(pullFromCloud, 15000);
+  }
+}
+
+// ==============================================================
+//  EXPORT / IMPORT
+// ==============================================================
+function exportJson() {
+  const blob = new Blob([JSON.stringify(state.movimientos, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cashflow_${todayISO()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Datos exportados');
+}
+function exportCsv() {
+  const rows = [['Fecha','Tipo','Categoría','Descripción','Monto','Cargado por']];
+  state.movimientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(m => {
+    rows.push([m.fecha, m.tipo, m.categoria, m.descripcion||'', m.monto, m.cargadoPor||'']);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cashflow_${todayISO()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado (abrir con Excel)');
+}
+function importJson(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('Formato inválido');
+      const existing = new Set(state.movimientos.map(m=>m.id));
+      let added = 0;
+      data.forEach(it => {
+        if (!existing.has(it.id)) {
+          state.movimientos.push(it);
+          added++;
+        }
+      });
+      saveState();
+      renderAll();
+      showToast(`Importados: ${added} movimientos`, 'success');
+    } catch (err) {
+      showToast('Archivo inválido', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==============================================================
+//  EVENT WIRING
+// ==============================================================
+function switchTab(name) {
+  state.currentTab = name;
+  document.querySelectorAll('section.tab').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+}
+
+function openDrawer() {
+  document.getElementById('cfgUser').value = config.user || '';
+  document.getElementById('cfgSyncUrl').value = config.syncUrl || '';
+  setSyncStatus(config.syncUrl ? (config.lastSync ? 'connected' : 'disconnected') : 'disconnected');
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('backdrop').classList.add('open');
+}
+function closeDrawer() {
+  // save config
+  config.user = document.getElementById('cfgUser').value.trim();
+  const newUrl = document.getElementById('cfgSyncUrl').value.trim();
+  const urlChanged = newUrl !== config.syncUrl;
+  config.syncUrl = newUrl;
+  saveConfig();
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('backdrop').classList.remove('open');
+  if (urlChanged) startAutoSync();
+  renderHeader();
+}
+
+// Tipo toggle
+document.getElementById('tipoToggle').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  state.currentTipo = btn.dataset.tipo;
+  document.querySelectorAll('#tipoToggle button').forEach(b => b.classList.toggle('active', b.dataset.tipo === state.currentTipo));
+  renderCategorias();
+});
+
+document.getElementById('btnGuardar').addEventListener('click', addMovimiento);
+document.getElementById('prevMonth').addEventListener('click', () => {
+  state.selectedMonth.setMonth(state.selectedMonth.getMonth() - 1);
+  renderAll();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+  state.selectedMonth.setMonth(state.selectedMonth.getMonth() + 1);
+  renderAll();
+});
+
+document.querySelectorAll('nav.tabs button').forEach(b => {
+  b.addEventListener('click', () => switchTab(b.dataset.tab));
+});
+
+document.getElementById('btnSettings').addEventListener('click', openDrawer);
+document.getElementById('backdrop').addEventListener('click', closeDrawer);
+
+document.getElementById('btnTestSync').addEventListener('click', async () => {
+  config.syncUrl = document.getElementById('cfgSyncUrl').value.trim();
+  saveConfig();
+  if (!config.syncUrl) { showToast('Pegá la URL primero', 'error'); return; }
+  showToast('Probando...');
+  await pullFromCloud();
+  if (config.lastSync) showToast('✓ Conexión OK', 'success');
+});
+
+document.getElementById('btnExport').addEventListener('click', exportJson);
+document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
+document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
+document.getElementById('fileImport').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) importJson(f);
+  e.target.value = '';
+});
+document.getElementById('btnClearAll').addEventListener('click', () => {
+  if (!confirm('¿Estás segura? Esto borra todos los movimientos de este celular.')) return;
+  if (!confirm('Última confirmación. ¿Borrar todo?')) return;
+  state.movimientos = [];
+  saveState();
+  renderAll();
+  showToast('Todo borrado');
+});
+
+// Pull-to-refresh-ish: refresh on visibility
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && config.syncUrl) pullFromCloud();
+});
+
+// ==============================================================
+//  INIT
+// ==============================================================
+function init() {
+  loadState();
+  document.getElementById('inFecha').value = todayISO();
+  renderCategorias();
+  renderAll();
+  startAutoSync();
+  switchTab('cargar');
+}
+init();
+</script>
+</body>
+</html>
