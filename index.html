@@ -420,11 +420,28 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   border-radius: 2px;
   margin: 0 auto 16px;
 }
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
 .drawer h2 {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 18px;
 }
+.drawer-close {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-soft);
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  transition: background .15s, color .15s;
+}
+.drawer-close:active { background: var(--border); color: var(--text); }
 .drawer .section { margin-bottom: 22px; }
 .drawer .section-title {
   font-size: 12px;
@@ -612,7 +629,10 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   <div class="drawer-backdrop" id="backdrop"></div>
   <div class="drawer" id="drawer">
     <div class="grabber"></div>
-    <h2>Configuración</h2>
+    <div class="drawer-header">
+      <h2>Configuración</h2>
+      <button class="drawer-close" id="btnDrawerClose" aria-label="Cerrar">✕</button>
+    </div>
 
     <div class="section">
       <div class="section-title">Quién soy</div>
@@ -644,8 +664,10 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
       <button class="btn-secondary danger" id="btnClearAll" style="color:var(--red);border-color:var(--red-bg);">🗑 Borrar todo</button>
     </div>
 
-    <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;">
-      v1.0 · Mi Cash Flow
+    <button class="btn-primary" id="btnDrawerSave" style="margin-top:8px;">Guardar y cerrar</button>
+
+    <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;margin-top:18px;">
+      Familia Cason-Ronco · v1.1
     </div>
   </div>
 
@@ -1112,6 +1134,11 @@ document.querySelectorAll('nav.tabs button').forEach(b => {
 
 document.getElementById('btnSettings').addEventListener('click', openDrawer);
 document.getElementById('backdrop').addEventListener('click', closeDrawer);
+document.getElementById('btnDrawerClose').addEventListener('click', closeDrawer);
+document.getElementById('btnDrawerSave').addEventListener('click', () => {
+  closeDrawer();
+  showToast('✓ Configuración guardada', 'success');
+});
 
 document.getElementById('btnTestSync').addEventListener('click', async () => {
   config.syncUrl = document.getElementById('cfgSyncUrl').value.trim();
