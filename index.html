@@ -136,6 +136,91 @@ section.tab.active { display: block; animation: fade .2s ease; }
   box-shadow: var(--shadow);
   margin-bottom: 14px;
 }
+
+/* Scan ticket button (camera) */
+.scan-card {
+  background: linear-gradient(135deg, rgba(129,140,248,.18), rgba(167,139,250,.12));
+  border: 1px solid rgba(129,140,248,.3);
+  border-radius: 18px;
+  padding: 6px;
+  margin-bottom: 14px;
+}
+.btn-scan {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: var(--text);
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background .15s;
+}
+.btn-scan:active { background: rgba(129,140,248,.18); }
+.btn-scan .scan-icon { font-size: 22px; }
+.btn-scan .scan-sub {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-soft);
+  margin-top: 2px;
+}
+.scan-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  color: var(--text-light);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.scan-divider::before, .scan-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Scan loading overlay */
+.scan-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,17,23,.85);
+  backdrop-filter: blur(8px);
+  z-index: 400;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.scan-overlay.show { display: flex; }
+.scan-spinner {
+  width: 60px; height: 60px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-right-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-overlay-text {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+.scan-overlay-sub {
+  color: var(--text-soft);
+  font-size: 13px;
+  margin-top: 6px;
+  text-align: center;
+}
 .tipo-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -494,6 +579,19 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 
   <main>
     <section class="tab active" id="tab-cargar">
+      <div class="scan-card">
+        <button class="btn-scan" id="btnScan">
+          <span class="scan-icon">📷</span>
+          <span>
+            Escanear ticket
+            <span class="scan-sub">Tomá foto y la app la lee sola</span>
+          </span>
+        </button>
+      </div>
+      <input type="file" id="fileTicket" accept="image/*" capture="environment" style="display:none;">
+
+      <div class="scan-divider"><span>o cargar manual</span></div>
+
       <div class="entry-card">
         <div class="tipo-toggle" id="tipoToggle">
           <button data-tipo="Gasto" class="active gasto"><span class="icon">−</span>Gasto</button>
@@ -618,6 +716,12 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
     <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;margin-top:18px;">
       Familia Cason-Ronco · v1.2
     </div>
+  </div>
+
+  <div class="scan-overlay" id="scanOverlay">
+    <div class="scan-spinner"></div>
+    <div class="scan-overlay-text" id="scanOverlayText">Leyendo el ticket...</div>
+    <div class="scan-overlay-sub" id="scanOverlaySub">Esto puede tomar 2-5 segundos</div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1055,6 +1159,122 @@ document.getElementById('tipoToggle').addEventListener('click', e => {
   state.currentTipo = btn.dataset.tipo;
   document.querySelectorAll('#tipoToggle button').forEach(b => b.classList.toggle('active', b.dataset.tipo === state.currentTipo));
   renderCategorias();
+});
+
+// =================================================================
+//   ESCANEO DE TICKETS (cámara + IA)
+// =================================================================
+function showScanLoading(text, sub) {
+  document.getElementById('scanOverlayText').textContent = text || 'Leyendo el ticket...';
+  document.getElementById('scanOverlaySub').textContent = sub || 'Esto puede tomar 2-5 segundos';
+  document.getElementById('scanOverlay').classList.add('show');
+}
+function hideScanLoading() {
+  document.getElementById('scanOverlay').classList.remove('show');
+}
+
+// Comprime una imagen a un máximo de 1280px del lado más largo
+// y la convierte a base64 (sin el prefijo data:)
+function compressImage(file, maxDim = 1280, quality = 0.78) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo'));
+    reader.onload = e => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('No se pudo decodificar la imagen'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round((height / width) * maxDim); width = maxDim; }
+          else { width = Math.round((width / height) * maxDim); height = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64 = dataUrl.split(',')[1];
+        resolve({ data: base64, mime: 'image/jpeg' });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function scanTicket(file) {
+  if (!config.syncUrl) {
+    showToast('Configurá la sincronización primero', 'error');
+    return;
+  }
+  showScanLoading('Comprimiendo foto...');
+  try {
+    const compressed = await compressImage(file);
+    showScanLoading('Analizando ticket...', 'La IA está leyendo los datos');
+    const res = await fetch(config.syncUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'parseReceipt', image: compressed.data, mime: compressed.mime }),
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error || 'Error desconocido');
+    fillFormFromTicket(data.parsed);
+    hideScanLoading();
+    showToast('✓ Datos cargados, revisá y guardá', 'success');
+  } catch (e) {
+    hideScanLoading();
+    const msg = String(e.message || e);
+    if (msg.includes('GEMINI_API_KEY')) {
+      showToast('Falta configurar la API key de Gemini', 'error');
+    } else if (msg.includes('quota') || msg.includes('429')) {
+      showToast('Cuota diaria de Gemini agotada', 'error');
+    } else {
+      showToast('No se pudo leer el ticket. Probá con otra foto', 'error');
+    }
+    console.error('scanTicket error:', e);
+  }
+}
+
+function fillFormFromTicket(p) {
+  if (!p) return;
+  // Forzar tipo Gasto (un ticket siempre es un gasto)
+  state.currentTipo = 'Gasto';
+  document.querySelectorAll('#tipoToggle button').forEach(b =>
+    b.classList.toggle('active', b.dataset.tipo === 'Gasto'));
+  renderCategorias();
+
+  if (p.monto && p.monto > 0) {
+    document.getElementById('inMonto').value = p.monto;
+  }
+  if (p.fecha) {
+    const norm = normFecha(p.fecha);
+    if (norm) document.getElementById('inFecha').value = norm;
+  }
+  if (p.descripcion) {
+    document.getElementById('inDesc').value = p.descripcion;
+  }
+  if (p.categoria_sugerida) {
+    const sel = document.getElementById('inCategoria');
+    const sug = p.categoria_sugerida.toLowerCase();
+    let matched = null;
+    for (let opt of sel.options) {
+      const v = opt.value.toLowerCase();
+      if (v === sug || v.includes(sug) || sug.includes(v)) { matched = opt.value; break; }
+    }
+    if (matched) sel.value = matched;
+  }
+  // scroll para que se vea el formulario
+  document.getElementById('inMonto').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.getElementById('btnScan').addEventListener('click', () => {
+  document.getElementById('fileTicket').click();
+});
+document.getElementById('fileTicket').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) scanTicket(f);
+  e.target.value = '';
 });
 
 document.getElementById('btnGuardar').addEventListener('click', addMovimiento);
