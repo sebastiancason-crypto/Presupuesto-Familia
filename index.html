@@ -394,6 +394,8 @@ section.tab.active { display: block; animation: fade .2s ease; }
 .month-bar .bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; position: relative; }
 .month-bar .bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 3px; transition: width .3s; }
 .month-bar .bar-fill.neg { background: linear-gradient(90deg, var(--red), #FF6B6B); }
+.month-bar.current .month-name { color: var(--primary); font-weight: 600; }
+.month-bar.current .bar-track { background: var(--primary-light); }
 
 .cat-breakdown { display: flex; flex-direction: column; gap: 10px; }
 .cat-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
@@ -547,6 +549,81 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   padding: 14px 16px;
 }
 
+/* ABM de Categorías en el drawer */
+.cat-group { margin-bottom: 14px; }
+.cat-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+.cat-items {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cat-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-soft);
+}
+.cat-item:last-child { border-bottom: none; }
+.cat-item .cat-del {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-light);
+  font-size: 14px;
+  display: grid; place-items: center;
+  transition: all .15s;
+}
+.cat-item .cat-del:active { background: var(--red-bg); color: var(--red); }
+.cat-empty {
+  padding: 14px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 12px;
+  font-style: italic;
+}
+.cat-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.cat-add-row select {
+  flex: 0 0 110px;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 14px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%239CA3B5' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.cat-add-row input {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-size: 14px;
+}
+.cat-add-row input::placeholder { color: var(--text-light); }
+
 .mov-item .delete-btn {
   width: 32px; height: 32px;
   border-radius: 8px;
@@ -640,27 +717,37 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
     </section>
 
     <section class="tab" id="tab-resumen">
+      <div class="month-picker">
+        <button class="nav-btn" id="prevMonthRes">‹</button>
+        <div>
+          <div class="label" id="monthLabelRes">Abril 2026</div>
+          <div class="month-stats">
+            <span style="color:var(--primary);font-weight:600;">📊 Resumen del mes</span>
+          </div>
+        </div>
+        <button class="nav-btn" id="nextMonthRes">›</button>
+      </div>
       <div class="kpi-row">
         <div class="kpi-card">
-          <div class="kpi-label">Ingresos del año</div>
-          <div class="kpi-value ingreso" id="kpiIngAnio">$0</div>
+          <div class="kpi-label" id="kpiIngLabel">Ingresos del mes</div>
+          <div class="kpi-value ingreso" id="kpiIng">$0</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Gastos del año</div>
-          <div class="kpi-value gasto" id="kpiGasAnio">$0</div>
+          <div class="kpi-label" id="kpiGasLabel">Gastos del mes</div>
+          <div class="kpi-value gasto" id="kpiGas">$0</div>
         </div>
       </div>
       <div class="kpi-card" style="margin-bottom: 14px;">
-        <div class="kpi-label">Saldo del año</div>
-        <div class="kpi-value saldo" id="kpiSaldoAnio">$0</div>
+        <div class="kpi-label" id="kpiSaldoLabel">Saldo del mes</div>
+        <div class="kpi-value saldo" id="kpiSaldo">$0</div>
       </div>
       <div class="summary-card">
-        <h3>Saldo mes a mes</h3>
-        <div id="monthBars"></div>
-      </div>
-      <div class="summary-card">
-        <h3>Gastos por categoría</h3>
+        <h3 id="catBreakdownTitle">Gastos por categoría · este mes</h3>
         <div class="cat-breakdown" id="catBreakdown"></div>
+      </div>
+      <div class="summary-card">
+        <h3>Saldo mes a mes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light);" id="yearLabelMonthly">— 2026</span></h3>
+        <div id="monthBars"></div>
       </div>
     </section>
   </main>
@@ -692,6 +779,21 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
       <div class="section-title">Quién soy</div>
       <input type="text" id="cfgUser" placeholder="Tu nombre" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg-elevated);color:var(--text);">
       <p class="help">Aparece junto a cada movimiento que cargues.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Categorías</div>
+      <div id="catMgmtContent"></div>
+      <div class="cat-add-row">
+        <select id="newCatTipo">
+          <option value="Gasto">Gasto</option>
+          <option value="Ingreso">Ingreso</option>
+        </select>
+        <input type="text" id="newCatName" placeholder="Ej: Suscripciones" maxlength="40">
+      </div>
+      <button class="btn-secondary" id="btnAddCat" style="margin-top:8px;">+ Agregar categoría</button>
+      <p class="help">Agregá o eliminá categorías. Se sincronizan entre los dos celulares.</p>
+      <button class="btn-secondary" id="btnResetCats" style="margin-top:8px;font-size:13px;">↺ Restaurar lista por defecto</button>
     </div>
 
     <div class="section">
@@ -736,7 +838,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 </div>
 
 <script>
-const CATS = [
+const DEFAULT_CATS = [
   {tipo:'Ingreso',  cat:'Sueldo'},
   {tipo:'Ingreso',  cat:'Aguinaldo / Bonos'},
   {tipo:'Ingreso',  cat:'Otros ingresos'},
@@ -774,6 +876,22 @@ const CATS = [
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const STORAGE_KEY = 'cashflow_v1';
 const CONFIG_KEY = 'cashflow_cfg_v1';
+const CATS_KEY = 'cashflow_cats_v1';
+
+// Lista mutable de categorías (puede ser editada por el usuario y sincronizada)
+let cats = [];
+
+function loadCats() {
+  try {
+    const raw = localStorage.getItem(CATS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) { cats = parsed; return; }
+    }
+  } catch (e) {}
+  cats = DEFAULT_CATS.slice();
+}
+function saveCats() { localStorage.setItem(CATS_KEY, JSON.stringify(cats)); }
 
 let state = {
   movimientos: [],
@@ -875,7 +993,7 @@ function renderCategorias() {
   const sel = document.getElementById('inCategoria');
   const tipo = state.currentTipo;
   sel.innerHTML = '';
-  CATS.filter(c => c.tipo === tipo).forEach(c => {
+  cats.filter(c => c.tipo === tipo).forEach(c => {
     const o = document.createElement('option');
     o.value = c.cat;
     o.textContent = c.cat;
@@ -922,49 +1040,67 @@ function renderMovimientos() {
 }
 
 function renderResumen() {
+  const mk = monthKey(state.selectedMonth);
+  const mesNombre = MESES[state.selectedMonth.getMonth()];
   const yr = state.selectedMonth.getFullYear();
-  const yItems = state.movimientos.filter(m => yearOfISO(m.fecha) === String(yr));
-  const ing = yItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
-  const gas = yItems.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
-  document.getElementById('kpiIngAnio').textContent = fmt(ing);
-  document.getElementById('kpiGasAnio').textContent = fmt(gas);
-  document.getElementById('kpiSaldoAnio').textContent = fmt(ing - gas);
 
+  // Header del picker en Resumen
+  const labelRes = document.getElementById('monthLabelRes');
+  if (labelRes) labelRes.textContent = `${mesNombre} ${yr}`;
+
+  // KPIs DEL MES seleccionado
+  const mItems = state.movimientos.filter(m => monthOfISO(m.fecha) === mk);
+  const ing = mItems.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
+  const gas = mItems.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
+  document.getElementById('kpiIng').textContent = fmt(ing);
+  document.getElementById('kpiGas').textContent = fmt(gas);
+  document.getElementById('kpiSaldo').textContent = fmt(ing - gas);
+  document.getElementById('kpiIngLabel').textContent = `Ingresos · ${mesNombre}`;
+  document.getElementById('kpiGasLabel').textContent = `Gastos · ${mesNombre}`;
+  document.getElementById('kpiSaldoLabel').textContent = `Saldo · ${mesNombre}`;
+
+  // Gastos por categoría del MES seleccionado
+  document.getElementById('catBreakdownTitle').textContent =
+    `Gastos por categoría · ${mesNombre.toLowerCase()}`;
+  const catTotals = {};
+  mItems.filter(m=>m.tipo==='Gasto').forEach(m => {
+    catTotals[m.categoria] = (catTotals[m.categoria]||0) + (+m.monto||0);
+  });
+  const catRows = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const totalGasMes = gas || 1;
+  document.getElementById('catBreakdown').innerHTML = catRows.length === 0
+    ? `<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Sin gastos cargados en ${mesNombre.toLowerCase()}.</p>`
+    : catRows.map(([cat, amt]) => `
+        <div class="cat-row">
+          <span class="cat-name">${escapeHtml(cat)}</span>
+          <span><span class="cat-amount">${fmt(amt)}</span><span class="cat-pct">${((amt/totalGasMes)*100).toFixed(0)}%</span></span>
+        </div>
+      `).join('');
+
+  // Saldo mes a mes (todos los meses del año del mes seleccionado, contexto)
+  document.getElementById('yearLabelMonthly').textContent = '— ' + yr;
+  const yItems = state.movimientos.filter(m => yearOfISO(m.fecha) === String(yr));
   const monthly = MESES.map((name, idx) => {
     const items = yItems.filter(m => Number(normFecha(m.fecha).slice(5,7)) === idx+1);
     const i = items.filter(m=>m.tipo==='Ingreso').reduce((s,m)=>s+(+m.monto||0),0);
     const g = items.filter(m=>m.tipo==='Gasto').reduce((s,m)=>s+(+m.monto||0),0);
-    return { name, saldo: i - g };
+    return { name, saldo: i - g, mIdx: idx };
   });
   const maxAbs = Math.max(...monthly.map(m=>Math.abs(m.saldo)), 1);
+  const currentMIdx = state.selectedMonth.getMonth();
   document.getElementById('monthBars').innerHTML = monthly
     .filter(m => m.saldo !== 0)
     .map(m => `
-      <div class="month-bar">
+      <div class="month-bar ${m.mIdx === currentMIdx ? 'current' : ''}">
         <div class="month-label">
-          <span class="month-name">${m.name}</span>
+          <span class="month-name">${m.name}${m.mIdx === currentMIdx ? ' ←' : ''}</span>
           <span class="month-amount ${m.saldo>=0?'pos':'neg'}">${fmt(m.saldo)}</span>
         </div>
         <div class="bar-track">
           <div class="bar-fill ${m.saldo<0?'neg':''}" style="width:${(Math.abs(m.saldo)/maxAbs)*100}%"></div>
         </div>
       </div>
-    `).join('') || '<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Aún sin movimientos en el año.</p>';
-
-  const catTotals = {};
-  yItems.filter(m=>m.tipo==='Gasto').forEach(m => {
-    catTotals[m.categoria] = (catTotals[m.categoria]||0) + (+m.monto||0);
-  });
-  const catRows = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
-  const totalGas = gas || 1;
-  document.getElementById('catBreakdown').innerHTML = catRows.length === 0
-    ? '<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Sin gastos cargados.</p>'
-    : catRows.map(([cat, amt]) => `
-        <div class="cat-row">
-          <span class="cat-name">${escapeHtml(cat)}</span>
-          <span><span class="cat-amount">${fmt(amt)}</span><span class="cat-pct">${((amt/totalGas)*100).toFixed(0)}%</span></span>
-        </div>
-      `).join('');
+    `).join('') || `<p style="color:var(--text-light);font-size:13px;text-align:center;padding:8px;">Aún sin movimientos en ${yr}.</p>`;
 }
 
 function renderAll() {
@@ -975,6 +1111,94 @@ function renderAll() {
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// =================================================================
+//   ABM de Categorías
+// =================================================================
+function renderCatMgmt() {
+  const content = document.getElementById('catMgmtContent');
+  if (!content) return;
+  const groups = { Gasto: [], Ingreso: [] };
+  cats.forEach((c, idx) => {
+    if (groups[c.tipo]) groups[c.tipo].push({ ...c, idx });
+  });
+
+  let html = '';
+  ['Gasto', 'Ingreso'].forEach(tipo => {
+    const list = groups[tipo];
+    html += `<div class="cat-group">
+      <div class="cat-group-title">${tipo === 'Gasto' ? 'Gastos' : 'Ingresos'} (${list.length})</div>
+      <div class="cat-items">`;
+    if (list.length === 0) {
+      html += `<div class="cat-empty">Sin categorías de ${tipo.toLowerCase()}</div>`;
+    } else {
+      list.forEach(c => {
+        html += `<div class="cat-item">
+          <span>${escapeHtml(c.cat)}</span>
+          <button class="cat-del" data-idx="${c.idx}" aria-label="Eliminar">✕</button>
+        </div>`;
+      });
+    }
+    html += `</div></div>`;
+  });
+  content.innerHTML = html;
+
+  content.querySelectorAll('.cat-del').forEach(btn => {
+    btn.addEventListener('click', () => deleteCat(Number(btn.dataset.idx)));
+  });
+}
+
+async function addCat() {
+  const tipo = document.getElementById('newCatTipo').value;
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('Escribí el nombre de la categoría', 'error'); return; }
+  if (cats.some(c => c.cat.toLowerCase() === name.toLowerCase())) {
+    showToast('Ya existe una categoría con ese nombre', 'error');
+    return;
+  }
+  cats.push({ tipo, cat: name });
+  saveCats();
+  document.getElementById('newCatName').value = '';
+  renderCatMgmt();
+  renderCategorias();
+  showToast('✓ Categoría agregada', 'success');
+  pushCategoriasToCloud();
+}
+
+async function deleteCat(idx) {
+  const c = cats[idx];
+  if (!c) return;
+  if (!confirm(`¿Eliminar la categoría "${c.cat}"?\n\nLos movimientos ya cargados con esta categoría no se borran.`)) return;
+  cats.splice(idx, 1);
+  saveCats();
+  renderCatMgmt();
+  renderCategorias();
+  showToast('Categoría eliminada');
+  pushCategoriasToCloud();
+}
+
+async function resetCats() {
+  if (!confirm('¿Restaurar la lista por defecto? Se reemplazan todas las categorías actuales.')) return;
+  cats = DEFAULT_CATS.slice();
+  saveCats();
+  renderCatMgmt();
+  renderCategorias();
+  showToast('Lista restaurada');
+  pushCategoriasToCloud();
+}
+
+async function pushCategoriasToCloud() {
+  if (!config.syncUrl) return;
+  try {
+    await fetch(config.syncUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'setCategorias', categorias: cats }),
+    });
+  } catch (e) {
+    console.warn('No se pudieron subir las categorías:', e);
+  }
 }
 
 async function addMovimiento() {
@@ -1058,6 +1282,14 @@ async function pullFromCloud() {
       ts: i.timestamp || i.ts || '',
     }));
     saveState();
+    // Si la nube tiene una lista de categorías, la usamos.
+    // Si la nube está vacía (primera vez), mantenemos la local.
+    if (Array.isArray(data.categorias) && data.categorias.length > 0) {
+      cats = data.categorias.map(c => ({ tipo: c.tipo, cat: c.cat }));
+      saveCats();
+      renderCategorias();
+      renderCatMgmt();
+    }
     config.lastSync = Date.now();
     saveConfig();
     setSyncStatus('connected');
@@ -1146,6 +1378,7 @@ function openDrawer() {
   document.getElementById('cfgUser').value = config.user || '';
   document.getElementById('cfgSyncUrl').value = config.syncUrl || '';
   setSyncStatus(config.syncUrl ? (config.lastSync ? 'connected' : 'disconnected') : 'disconnected');
+  renderCatMgmt();
   document.getElementById('drawer').classList.add('open');
   document.getElementById('backdrop').classList.add('open');
 }
@@ -1302,6 +1535,15 @@ document.getElementById('nextMonth').addEventListener('click', () => {
   state.selectedMonth.setMonth(state.selectedMonth.getMonth() + 1);
   renderAll();
 });
+// Mismo selector de mes en la pestaña Resumen — comparten state.selectedMonth
+document.getElementById('prevMonthRes').addEventListener('click', () => {
+  state.selectedMonth.setMonth(state.selectedMonth.getMonth() - 1);
+  renderAll();
+});
+document.getElementById('nextMonthRes').addEventListener('click', () => {
+  state.selectedMonth.setMonth(state.selectedMonth.getMonth() + 1);
+  renderAll();
+});
 
 document.querySelectorAll('nav.tabs button').forEach(b => {
   b.addEventListener('click', () => switchTab(b.dataset.tab));
@@ -1348,6 +1590,12 @@ document.getElementById('btnTestGemini').addEventListener('click', async () => {
   }
 });
 
+document.getElementById('btnAddCat').addEventListener('click', addCat);
+document.getElementById('btnResetCats').addEventListener('click', resetCats);
+document.getElementById('newCatName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addCat(); }
+});
+
 document.getElementById('btnExport').addEventListener('click', exportJson);
 document.getElementById('btnExportCsv').addEventListener('click', exportCsv);
 document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileImport').click());
@@ -1370,8 +1618,8 @@ document.addEventListener('visibilitychange', () => {
 });
 
 function init() {
+  loadCats();
   loadState();
-  // Migración: normalizar fechas viejas que pudieran haber quedado mal
   let migrated = false;
   state.movimientos.forEach(m => {
     const norm = normFecha(m.fecha);
