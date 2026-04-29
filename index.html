@@ -539,6 +539,13 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--red); }
 .toast.success { background: var(--green); }
+.toast.detail {
+  white-space: normal;
+  max-width: 92vw;
+  line-height: 1.4;
+  font-size: 12px;
+  padding: 14px 16px;
+}
 
 .mov-item .delete-btn {
   width: 32px; height: 32px;
@@ -696,6 +703,7 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
       <input type="text" id="cfgSyncUrl" placeholder="URL del Apps Script (ver instrucciones)" style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:10px;font-size:12px;background:var(--bg-elevated);color:var(--text);">
       <p class="help">Pegá acá la URL del web app de Google Apps Script para sincronizar entre celulares.</p>
       <button class="btn-secondary" id="btnTestSync" style="margin-top:10px;">Probar conexión</button>
+      <button class="btn-secondary" id="btnTestGemini" style="margin-top:8px;">🤖 Probar lectura de tickets (Gemini)</button>
     </div>
 
     <div class="section">
@@ -837,12 +845,12 @@ const fmtFecha = (iso) => {
 const todayISO = () => new Date().toISOString().slice(0,10);
 const uuid = () => 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
 
-function showToast(msg, type='') {
+function showToast(msg, type='', duration=2400) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.className = 'toast show ' + type;
   clearTimeout(showToast._t);
-  showToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+  showToast._t = setTimeout(() => el.classList.remove('show'), duration);
 }
 
 function monthKey(date) {
@@ -1225,13 +1233,21 @@ async function scanTicket(file) {
   } catch (e) {
     hideScanLoading();
     const msg = String(e.message || e);
+    let userMsg;
     if (msg.includes('GEMINI_API_KEY')) {
-      showToast('Falta configurar la API key de Gemini', 'error');
-    } else if (msg.includes('quota') || msg.includes('429')) {
-      showToast('Cuota diaria de Gemini agotada', 'error');
+      userMsg = '⚠️ Falta configurar la API key de Gemini en el Apps Script (ver INSTRUCCIONES_GEMINI.md, paso 2 y 3 — re-deployar)';
+    } else if (msg.includes('quota') || msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
+      userMsg = '⚠️ Cuota de Gemini agotada por hoy';
+    } else if (msg.includes('API_KEY_INVALID') || msg.includes('API key not valid')) {
+      userMsg = '⚠️ La API key de Gemini es inválida. Generá una nueva en aistudio.google.com/app/apikey';
+    } else if (msg.includes('not found') || msg.includes('404')) {
+      userMsg = '⚠️ Modelo de Gemini no encontrado. Avisame para corregir el nombre del modelo.';
+    } else if (msg.includes('SAFETY')) {
+      userMsg = '⚠️ Gemini bloqueó la imagen por filtros de seguridad. Probá otra foto.';
     } else {
-      showToast('No se pudo leer el ticket. Probá con otra foto', 'error');
+      userMsg = '❌ Error: ' + msg.substring(0, 200);
     }
+    showToast(userMsg, 'error detail', 7000);
     console.error('scanTicket error:', e);
   }
 }
@@ -1306,6 +1322,30 @@ document.getElementById('btnTestSync').addEventListener('click', async () => {
   showToast('Probando...');
   await pullFromCloud();
   if (config.lastSync) showToast('✓ Conexión OK', 'success');
+});
+
+document.getElementById('btnTestGemini').addEventListener('click', async () => {
+  config.syncUrl = document.getElementById('cfgSyncUrl').value.trim();
+  saveConfig();
+  if (!config.syncUrl) { showToast('Pegá la URL del Apps Script primero', 'error'); return; }
+  showScanLoading('Probando Gemini...', 'Verificando que la API key esté configurada');
+  try {
+    const res = await fetch(config.syncUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'testGemini' }),
+    });
+    const data = await res.json();
+    hideScanLoading();
+    if (data.success) {
+      showToast('✓ Gemini OK · modelo: ' + (data.model || '?') + ' · respuesta: "' + (data.reply || '') + '"', 'success detail', 6000);
+    } else {
+      showToast('❌ Gemini falló: ' + (data.error || '').substring(0, 200), 'error detail', 9000);
+    }
+  } catch (e) {
+    hideScanLoading();
+    showToast('Error de red: ' + String(e.message || e).substring(0, 150), 'error detail', 7000);
+  }
 });
 
 document.getElementById('btnExport').addEventListener('click', exportJson);
