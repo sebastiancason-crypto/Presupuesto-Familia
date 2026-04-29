@@ -549,6 +549,53 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   padding: 14px 16px;
 }
 
+/* Sub-vistas del drawer (settings principal vs. editor de categorías) */
+.drawer-view { display: block; }
+.drawer-view[hidden] { display: none; }
+.drawer-back {
+  background: transparent;
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.drawer-back:active { color: var(--accent); }
+
+/* Botón de navegación tipo "ir a otra pantalla" */
+.btn-nav {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  transition: background .15s;
+}
+.btn-nav:active { background: var(--border); }
+.btn-nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.btn-nav-text > :first-child { font-weight: 500; font-size: 15px; }
+.btn-nav-sub {
+  font-size: 11px;
+  color: var(--text-soft);
+  font-weight: 400;
+}
+.btn-nav-arrow {
+  font-size: 24px;
+  color: var(--text-light);
+  font-weight: 300;
+}
+
 /* ABM de Categorías en el drawer */
 .cat-group { margin-bottom: 14px; }
 .cat-group-title {
@@ -770,6 +817,9 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
   <div class="drawer-backdrop" id="backdrop"></div>
   <div class="drawer" id="drawer">
     <div class="grabber"></div>
+
+    <!-- ============= VISTA PRINCIPAL ============= -->
+    <div class="drawer-view" id="drawerMain">
     <div class="drawer-header">
       <h2>Configuración</h2>
       <button class="drawer-close" id="btnDrawerClose" aria-label="Cerrar">✕</button>
@@ -783,17 +833,13 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
 
     <div class="section">
       <div class="section-title">Categorías</div>
-      <div id="catMgmtContent"></div>
-      <div class="cat-add-row">
-        <select id="newCatTipo">
-          <option value="Gasto">Gasto</option>
-          <option value="Ingreso">Ingreso</option>
-        </select>
-        <input type="text" id="newCatName" placeholder="Ej: Suscripciones" maxlength="40">
-      </div>
-      <button class="btn-secondary" id="btnAddCat" style="margin-top:8px;">+ Agregar categoría</button>
-      <p class="help">Agregá o eliminá categorías. Se sincronizan entre los dos celulares.</p>
-      <button class="btn-secondary" id="btnResetCats" style="margin-top:8px;font-size:13px;">↺ Restaurar lista por defecto</button>
+      <button class="btn-nav" id="btnGoToCats">
+        <span class="btn-nav-text">
+          Editar categorías
+          <span class="btn-nav-sub"><span id="catCount">0</span> activas · sincronizadas</span>
+        </span>
+        <span class="btn-nav-arrow">›</span>
+      </button>
     </div>
 
     <div class="section">
@@ -824,8 +870,34 @@ nav.tabs button.fab:active .tab-icon-fab { transform: scale(.94); }
     <button class="btn-primary" id="btnDrawerSave" style="margin-top:8px;">Guardar y cerrar</button>
 
     <div class="section" style="text-align:center;color:var(--text-light);font-size:11px;margin-top:18px;">
-      Familia Cason-Ronco · v1.2
+      Familia Cason-Ronco · v1.3
     </div>
+    </div><!-- /drawerMain -->
+
+    <!-- ============= VISTA: EDITOR DE CATEGORÍAS ============= -->
+    <div class="drawer-view" id="drawerCats" hidden>
+      <div class="drawer-header">
+        <button class="drawer-back" id="btnBackCats" aria-label="Volver">‹ Volver</button>
+        <h2>Categorías</h2>
+        <div style="width:36px;"></div>
+      </div>
+
+      <div id="catMgmtContent"></div>
+
+      <div class="cat-add-section">
+        <div class="section-title" style="margin-top:18px;">Agregar nueva</div>
+        <div class="cat-add-row">
+          <select id="newCatTipo">
+            <option value="Gasto">Gasto</option>
+            <option value="Ingreso">Ingreso</option>
+          </select>
+          <input type="text" id="newCatName" placeholder="Ej: Suscripciones" maxlength="40">
+        </div>
+        <button class="btn-primary" id="btnAddCat" style="margin-top:10px;">+ Agregar categoría</button>
+        <p class="help" style="margin-top:10px;">Las categorías se sincronizan automáticamente con el otro celular.</p>
+        <button class="btn-secondary" id="btnResetCats" style="margin-top:14px;font-size:13px;">↺ Restaurar lista por defecto</button>
+      </div>
+    </div><!-- /drawerCats -->
   </div>
 
   <div class="scan-overlay" id="scanOverlay">
@@ -1378,9 +1450,18 @@ function openDrawer() {
   document.getElementById('cfgUser').value = config.user || '';
   document.getElementById('cfgSyncUrl').value = config.syncUrl || '';
   setSyncStatus(config.syncUrl ? (config.lastSync ? 'connected' : 'disconnected') : 'disconnected');
-  renderCatMgmt();
+  document.getElementById('catCount').textContent = cats.length;
+  showDrawerView('drawerMain');  // Siempre arrancar en la vista principal
   document.getElementById('drawer').classList.add('open');
   document.getElementById('backdrop').classList.add('open');
+}
+
+function showDrawerView(viewId) {
+  document.querySelectorAll('.drawer-view').forEach(v => v.hidden = true);
+  const v = document.getElementById(viewId);
+  if (v) v.hidden = false;
+  // scroll al tope al cambiar de vista
+  document.getElementById('drawer').scrollTop = 0;
 }
 function closeDrawer() {
   config.user = document.getElementById('cfgUser').value.trim();
@@ -1594,6 +1675,15 @@ document.getElementById('btnAddCat').addEventListener('click', addCat);
 document.getElementById('btnResetCats').addEventListener('click', resetCats);
 document.getElementById('newCatName').addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); addCat(); }
+});
+document.getElementById('btnGoToCats').addEventListener('click', () => {
+  renderCatMgmt();
+  showDrawerView('drawerCats');
+});
+document.getElementById('btnBackCats').addEventListener('click', () => {
+  // actualizar el contador antes de volver
+  document.getElementById('catCount').textContent = cats.length;
+  showDrawerView('drawerMain');
 });
 
 document.getElementById('btnExport').addEventListener('click', exportJson);
